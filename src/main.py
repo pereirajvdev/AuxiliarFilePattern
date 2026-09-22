@@ -52,6 +52,46 @@ def identificar_setor(nome_arquivo):
 
     return None
 
+def verificar_arquivos(pasta):
+    corretos = 0
+    incorretos = 0
+    sem_setor = 0
+
+    for pasta_setor in pasta.iterdir():
+        if not pasta_setor.is_dir():
+            continue
+
+        setor_pasta = pasta_setor.name.upper()
+
+        # Ignora pastas que não são setores
+        if setor_pasta not in SETORES:
+            continue
+
+        for arquivo in pasta_setor.iterdir():
+            if not arquivo.is_file():
+                continue
+
+            setor_arquivo = identificar_setor(arquivo.name)
+
+            if setor_arquivo is None:
+                print(f"[SEM SETOR] {pasta_setor.name} -> {arquivo.name}")
+                sem_setor += 1
+
+            elif setor_arquivo != setor_pasta:
+                print(
+                    f"[INCORRETO] {arquivo.name} "
+                    f"| Pasta: {setor_pasta} "
+                    f"| Identificado: {setor_arquivo}"
+                )
+                incorretos += 1
+
+            else:
+                corretos += 1
+
+    print()
+    print(f"Arquivos corretos: {corretos}")
+    print(f"Arquivos incorretos: {incorretos}")
+    print(f"Arquivos sem setor identificado: {sem_setor}")
 
 def organizar_arquivos(pasta):
     arquivos = [
@@ -92,6 +132,7 @@ def main():
         print("Uso:")
         print("  python src/main.py <pasta> listar")
         print("  python src/main.py <pasta> organizar")
+        print("  python src/main.py <pasta> verificar")
         sys.exit(1)
 
     pasta = Path(sys.argv[1])
@@ -110,6 +151,9 @@ def main():
 
     elif modo == "organizar":
         organizar_arquivos(pasta)
+
+    elif modo == "verificar":
+        verificar_arquivos(pasta)
 
     else:
         print(f"Erro: modo inválido: {modo}")
